@@ -1,0 +1,29 @@
+app:
+  bot_token: "${BOT_TOKEN}"
+  environment: "${ENVIRONMENT:development}"
+
+database:
+  host: "${DB_HOST:localhost}"
+  port: ${DB_PORT:5432}
+  user: "${DB_USER:admin}"
+  password: "${DB_PASSWORD:admin}"
+  name: "${DB_NAME:telegram_bot}"
+  ssl_mode: "${DB_SSL_MODE:disable}"
+  maxIdleConns: 10
+  maxOpenConns: 100
+  connMaxLifetime: 1h
+  connMaxIdleTime: 10m
+
+redis:
+  host: "${REDIS_HOST:localhost}"
+  port: ${REDIS_PORT:6379}
+  password: "${REDIS_PASSWORD:}"
+  db: ${REDIS_DB:0}
+
+log:
+  log_level: "${LOG_LEVEL:debug}"
+  filepath: "./logs/dev.001.log"
+  max_size: 500
+  max_backups: 3
+  max_age: 28
+  compress: true
