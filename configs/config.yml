@@ -1,29 +1,31 @@
 app:
-  bot_token: "${BOT_TOKEN}"
-  environment: "${ENVIRONMENT:development}"
+  bot_token: ""  # Set via BOT_TOKEN environment variable
+  environment: "development"  # Override with ENVIRONMENT env var
 
 database:
-  host: "${DB_HOST:localhost}"
-  port: ${DB_PORT:5432}
-  user: "${DB_USER:admin}"
-  password: "${DB_PASSWORD:admin}"
-  name: "${DB_NAME:telegram_bot}"
-  ssl_mode: "${DB_SSL_MODE:disable}"
-  maxIdleConns: 10
-  maxOpenConns: 100
-  connMaxLifetime: 1h
-  connMaxIdleTime: 10m
+  host: "localhost"     # Override with DB_HOST env var
+  port: 5432           # Override with DB_PORT env var
+  user: "admin"        # Override with DB_USER env var
+  password: "admin"    # Override with DB_PASSWORD env var
+  name: "telegram_bot" # Override with DB_NAME env var
+  ssl_mode: "disable"  # Override with DB_SSL_MODE env var
+
+  # Connection pool settings
+  max_idle_conns: 10
+  max_open_conns: 100
+  conn_max_lifetime: 1h
+  conn_max_idle_time: 10m
 
 redis:
-  host: "${REDIS_HOST:localhost}"
-  port: ${REDIS_PORT:6379}
-  password: "${REDIS_PASSWORD:}"
-  db: ${REDIS_DB:0}
+  host: "localhost"  # Override with REDIS_HOST env var
+  port: "6379"      # Override with REDIS_PORT env var
+  password: ""      # Override with REDIS_PASSWORD env var
+  db: 0             # Override with REDIS_DB env var
 
 log:
-  log_level: "${LOG_LEVEL:debug}"
-  filepath: "./logs/dev.001.log"
-  max_size: 500
-  max_backups: 3
-  max_age: 28
-  compress: true
+  log_level: "debug"       # Override with LOG_LEVEL env var
+  filepath: "./logs/app.log"
+  max_size: 500      # MB
+  max_backups: 3     # Number of backup files
+  max_age: 28        # Days
+  compress: true     # Compress backup files

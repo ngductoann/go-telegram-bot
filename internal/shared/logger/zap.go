@@ -1,6 +1,7 @@
 package logger
 
 import (
+	"fmt"
 	"os"
 	"time"
 
@@ -16,6 +17,12 @@ type ZapLogger struct {
 }
 
 func NewZapLogger(cfg *config.Config) (*ZapLogger, error) {
+	if cfg == nil {
+		return nil, fmt.Errorf("config is nil")
+	}
+	if cfg.Log.LogLevel == "" {
+		cfg.Log.LogLevel = "info" // default
+	}
 	var zapLevel zapcore.Level
 	// Level: debug -> info -> warn -> error -> fatal
 	switch cfg.Log.LogLevel {

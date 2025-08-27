@@ -1,6 +1,8 @@
 package container
 
 import (
+	"fmt"
+
 	domainService "github.com/ngductoann/go-telegram-bot/internal/domain/service"
 	"github.com/ngductoann/go-telegram-bot/internal/infrastructure/config"
 	"github.com/ngductoann/go-telegram-bot/internal/infrastructure/database"
@@ -23,7 +25,7 @@ type Container struct {
 	RedisClient *redis.Client
 }
 
-func NewContainer(cfg *config.Config) (*Container, error) {
+func NewContainer() (*Container, error) {
 	container := &Container{}
 
 	// Load configuration
@@ -53,9 +55,20 @@ func NewContainer(cfg *config.Config) (*Container, error) {
 func (c *Container) initConfig() error {
 	cfg, err := config.LoadConfig()
 	if err != nil {
-		return nil
+		return err
 	}
 	c.Config = cfg
+	return nil
+}
+
+// initLogger initializes logger
+func (c *Container) initLogger() error {
+	log, err := logger.NewZapLogger(c.Config)
+	if err != nil {
+		return err
+	}
+
+	c.Logger = log
 	return nil
 }
 
@@ -71,22 +84,12 @@ func (c *Container) initDatabase() error {
 	return nil
 }
 
-// initLogger initializes logger
-func (c *Container) initLogger() error {
-	log, err := logger.NewZapLogger(c.Config)
-	if err != nil {
-		return err
-	}
-
-	c.Logger = log
-	return nil
-}
-
+// initRedis initializes Redis connection
 func (c *Container) initRedis() error {
 	redisClient, err := database.NewRedisConnection(
 		c.Config.GetRedisURL(),
 		c.Config.Redis.Host,
-		c.Config.Redis.Port,
+		fmt.Sprintf("%v", c.Config.Redis.Port),
 		c.Config.Redis.Password,
 		c.Config.Redis.DB,
 		c.Logger,
