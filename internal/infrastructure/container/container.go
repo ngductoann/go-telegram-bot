@@ -3,14 +3,17 @@ package container
 import (
 	"fmt"
 
+	"github.com/ngductoann/go-telegram-bot/internal/domain/repository"
 	domainService "github.com/ngductoann/go-telegram-bot/internal/domain/service"
 	"github.com/ngductoann/go-telegram-bot/internal/infrastructure/config"
 	"github.com/ngductoann/go-telegram-bot/internal/infrastructure/database"
+	implRepository "github.com/ngductoann/go-telegram-bot/internal/infrastructure/repository"
 	"github.com/ngductoann/go-telegram-bot/internal/shared/logger"
 	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
 )
 
+// Container holds all the dependencies for the application
 type Container struct {
 	// Config
 	Config *config.Config
@@ -23,8 +26,18 @@ type Container struct {
 
 	// Redis
 	RedisClient *redis.Client
+
+	// Repositories
+	UserRepo         repository.UserRepository
+	UserProfileRepo  repository.UserProfileRepository
+	ChatRepo         repository.ChatRepository
+	MessageRepo      repository.MessageRepository
+	SessionRepo      repository.SessionRepository
+	CacheRepo        repository.CacheRepository
+	SessionCacheRepo repository.SessionCacheRepository
 }
 
+// NewContainer creates a new Container and initializes all dependencies
 func NewContainer() (*Container, error) {
 	container := &Container{}
 
@@ -47,6 +60,9 @@ func NewContainer() (*Container, error) {
 	if err := container.initRedis(); err != nil {
 		container.Logger.Warn("Redis connection failed, continuing without Redis: " + err.Error())
 	}
+
+	// Initialize repositories
+	container.initRepositories()
 
 	return container, nil
 }
@@ -101,4 +117,22 @@ func (c *Container) initRedis() error {
 
 	c.RedisClient = redisClient
 	return nil
+}
+
+func (c *Container) initRepositories() {
+	c.UserRepo = implRepository.NewUserRepository(c.DB)
+	c.UserProfileRepo = implRepository.NewUserProfileRepository(c.DB)
+	c.ChatRepo = implRepository.NewChatRepository(c.DB)
+	c.MessageRepo = implRepository.NewMessageRepository(c.DB)
+	c.SessionRepo = implRepository.NewSessionRepository(c.DB)
+
+	// Only initialize Redis repositories if Redis client is available
+	if c.RedisClient != nil {
+		c.CacheRepo = implRepository.NewRedisCacheRepository(c.RedisClient)
+		c.SessionCacheRepo = implRepository.NewRedisSessionCacheRepository(c.RedisClient)
+	} else {
+		// Use nil repositories - services should handle gracefully
+		c.CacheRepo = nil
+		c.SessionCacheRepo = nil
+	}
 }

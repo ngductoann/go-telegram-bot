@@ -13,6 +13,7 @@ type ChatRepository interface {
 	GetByTelegramChatID(ctx context.Context, chatID types.TelegramChatID) (*entity.Chat, error)
 	Create(ctx context.Context, chat *entity.Chat) error
 	Update(ctx context.Context, chat *entity.Chat) error
-	Delete(ctx context.Context, chatID types.TelegramChatID) error
+	DeleteByTelegramChatID(ctx context.Context, chatID types.TelegramChatID) error
+	DeleteByID(ctx context.Context, uuid uuid.UUID) error
 	GetActiveChats(ctx context.Context, limit int) ([]*entity.Chat, error)
 }
