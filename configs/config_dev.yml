@@ -1,0 +1,11 @@
+app:
+  bot_token: "" # Set via BOT_TOKEN environment variable
+  environment: "" # Override with ENVIRONMENT env var
+
+log:
+  log_level: "debug" # Override with LOG_LEVEL env var
+  filepath: "./logs/app.log"
+  max_size: 500 # MB
+  max_backups: 3 # Number of backup files
+  max_age: 28 # Days
+  compress: true # Compress backup files

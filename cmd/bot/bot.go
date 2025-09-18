@@ -7,31 +7,22 @@ import (
 	"os/signal"
 	"syscall"
 
-	"go-telegram-bot/config"
-	"go-telegram-bot/internal/delivery"
-	infrasService "go-telegram-bot/internal/infrastructure/service"
-	infrasUsecase "go-telegram-bot/internal/usecase"
+	"go-telegram-bot/internal/infrastructure/initialize"
 )
 
 func main() {
 	log.Println("Bot is starting...")
-	cfg := config.MustLoadConfig()
-	log.Println("Successfully loaded config:")
 
-	// Initialize dependencies with clean architecture principles
+	// Initialize container with all dependencies
+	container, err := initialize.NewContainer()
+	if err != nil {
+		log.Fatalf("Failed to initialize container: %v", err)
+	}
+	container.Logger.Info("Successfully loaded config and initialized dependencies")
 
-	// Initialize Infrastructure layer (e.g., database, external services)
-	ipService := infrasService.NewIPService()
-	telegramBot := infrasService.NewTelegramBot(cfg.TelegramBotToken)
-	log.Println("Infrastructure service layer initialized.")
-
-	// Use Case layer
-	botUseCase := infrasUsecase.NewBotUseCase(ipService, telegramBot)
-	log.Println("Use case layer initialized.")
-
-	// Delivery layer
-	telegramHandler := delivery.NewTelegramHandler(botUseCase, telegramBot)
-	log.Println("Delivery layer initialized.")
+	// Initialize delivery layer - now using factory from container
+	telegramHandler := container.TelegramHandler
+	container.Logger.Info("Delivery layer initialized")
 
 	// Create context with cancel for graceful shutdown
 	ctx, cancel := context.WithCancel(context.Background())
@@ -44,23 +35,22 @@ func main() {
 	// run bot in goroutine
 	errChan := make(chan error, 1)
 	go func() {
-		log.Println("🤖 Bot is start polling from telegram...")
+		container.Logger.Info("🤖 Bot is start polling from telegram...")
 		if err := telegramHandler.StartPolling(ctx); err != nil && err != context.Canceled {
 			errChan <- err
 		}
 	}()
 
-	log.Println("Bot started successfully.")
-	log.Println("Bot is running. Press Ctrl+C to stop.")
+	container.Logger.Info("Bot is running. Press Ctrl+C to stop.")
 
 	// wait signal or error
 	select {
 	case <-sigChan:
 		// received an interrupt signal, shut down gracefully
-		log.Println("Received shutdown signal, exiting...")
+		container.Logger.Info("Received shutdown signal, exiting...")
 	case err := <-errChan:
 		// received an error from the bot
-		log.Printf("Bot encountered an error: %v", err)
+		container.Logger.Error("Bot encountered an error", "error", err)
 	}
 
 	// Perform graceful shutdown
