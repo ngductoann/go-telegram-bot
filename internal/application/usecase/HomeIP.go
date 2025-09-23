@@ -3,10 +3,11 @@ package usecase
 import (
 	"context"
 	"fmt"
+	"time"
+
 	"go-telegram-bot/internal/domain/entity"
 	domainService "go-telegram-bot/internal/domain/service"
 	"go-telegram-bot/internal/shared/util"
-	"time"
 )
 
 // HomeIPUseCase handles the business logic for home IP related operations
@@ -68,6 +69,7 @@ func (uc *HomeIPUseCase) Execute(ctx context.Context, chatID int64) error {
 		ChatID:      chatID,
 		Text:        message,
 		MessageType: entity.MessageTypeInfo,
+		Command:     "/home_ip",
 		ParseMode:   "MarkdownV2",
 		SentAt:      time.Now().Unix(),
 	}

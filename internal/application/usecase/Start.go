@@ -36,6 +36,7 @@ func (uc *StartUseCase) Execute(ctx context.Context, chatID int64) error {
 		ChatID:      chatID,
 		Text:        message,
 		MessageType: entity.MessageTypeInfo,
+		Command:     "/start",
 		ParseMode:   "MarkdownV2",
 		SentAt:      time.Now().Unix(),
 	}

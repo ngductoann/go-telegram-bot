@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"context"
+
 	"go-telegram-bot/internal/domain/entity"
 	domainService "go-telegram-bot/internal/domain/service"
 )

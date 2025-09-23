@@ -70,7 +70,7 @@ func (s *BotApplicationService) ProcessUpdate(ctx context.Context, update entity
 
 	message := update.Message
 	chatID := message.Chat.ID
-	text := message.Text
+	text := message.Content
 
 	s.logger.Info("Received message from chat ID %d: %s", chatID, text)
 

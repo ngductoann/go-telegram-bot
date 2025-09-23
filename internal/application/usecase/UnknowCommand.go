@@ -42,7 +42,7 @@ func (u *UnknownCommandUseCase) Execute(ctx context.Context, chatID int64) error
 		ChatID:      chatID,
 		Text:        message,
 		SentAt:      time.Now().Unix(),
-		MessageType: entity.MessageTypeCommand,
+		MessageType: entity.MessageTypeText,
 		ParseMode:   "MarkdownV2",
 	}
 

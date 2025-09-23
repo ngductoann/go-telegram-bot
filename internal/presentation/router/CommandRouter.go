@@ -2,9 +2,10 @@ package router
 
 import (
 	"context"
+	"strings"
+
 	"go-telegram-bot/internal/domain/entity"
 	"go-telegram-bot/internal/presentation/handler"
-	"strings"
 )
 
 // CommandRouter routes commands to their respective handlers
@@ -17,7 +18,6 @@ type CommandRouter struct {
 func NewCommandRouter(
 	unknownHandler handler.CommandHandler,
 ) *CommandRouter {
-
 	return &CommandRouter{
 		handlers:       make(map[string]handler.CommandHandler),
 		unknownHandler: unknownHandler,

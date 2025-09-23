@@ -15,7 +15,7 @@ type TelegramBotService interface {
 	SendMessageWithParseMode(ctx context.Context, chatID int64, text string, parseMode string) error
 
 	// SendBotMessage sends a structured bot message
-	SendBotMessage(ctx context.Context, message *entity.BotMessage) error
+	SendBotMessage(ctx context.Context, message *entity.Message) error
 
 	// GetUpdates retrieves pending updates from Telegram
 	GetUpdates(ctx context.Context, offset int64) ([]entity.TelegramUpdate, error)
