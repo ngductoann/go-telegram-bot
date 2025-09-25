@@ -2,8 +2,6 @@ package service
 
 import (
 	"context"
-
-	"go-telegram-bot/internal/domain/entity"
 )
 
 // IPService defines the interface for IP-related operations
@@ -15,7 +13,7 @@ type IPService interface {
 	GetPublicIP(ctx context.Context) (string, error)
 
 	// GetIPInfo retrieves both local and public IP information
-	GetIPInfo(ctx context.Context) (*entity.IPInfo, error)
+	GetIPInfo(ctx context.Context) (string, error)
 
 	// ValidateIP validates if the provided string is a valid IP address
 	ValidateIP(ip string) bool

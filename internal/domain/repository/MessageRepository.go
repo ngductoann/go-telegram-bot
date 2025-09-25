@@ -10,14 +10,12 @@ import (
 )
 
 type MessageRepository interface {
-	FindByID(ctx context.Context, id uuid.UUID) ([]*entity.Message, error)
+	FindByID(ctx context.Context, id uuid.UUID) (*entity.Message, error)
 	FindByTelegramUserID(ctx context.Context, telegramUserID types.TelegramUserID) ([]*entity.Message, error)
 	FindByTelegramChatID(ctx context.Context, telegramChatID types.TelegramChatID) ([]*entity.Message, error)
 	FindByUserID(ctx context.Context, userID uuid.UUID) ([]*entity.Message, error)
 	FindByChatID(ctx context.Context, chatID uuid.UUID) ([]*entity.Message, error)
-	FindAll(ctx context.Context) ([]*entity.Message, error)
 	Create(ctx context.Context, message *entity.Message) error
 	Update(ctx context.Context, message *entity.Message) error
 	Delete(ctx context.Context, message *entity.Message) error
-	GetOrCreate(ctx context.Context, message *entity.Message) (*entity.Message, error)
 }

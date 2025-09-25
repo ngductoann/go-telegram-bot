@@ -9,3 +9,17 @@ log:
   max_backups: 3 # Number of backup files
   max_age: 28 # Days
   compress: true # Compress backup files
+
+postgres:
+  host: "localhost" # Override with DB_HOST env var
+  port: 5432 # Override with DB_PORT env var
+  user: "admin" # Override with DB_USER env var
+  password: "admin" # Override with DB_PASSWORD env var
+  name: "telegram_bot" # Override with DB_NAME env var
+  ssl_mode: "disable" # Override with DB_SSL_MODE env var
+
+  # Connection pool settings
+  max_idle_conns: 10
+  max_open_conns: 100
+  conn_max_lifetime: 1h
+  conn_max_idle_time: 10m

@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/joho/godotenv"
 	"github.com/spf13/viper"
@@ -15,8 +16,9 @@ const (
 )
 
 type Config struct {
-	App    App    `mapstructure:"app"`
-	Logger Logger `mapstructure:"logger"`
+	App      App      `mapstructure:"app"`
+	Logger   Logger   `mapstructure:"logger"`
+	Postgres Postgres `mapstructure:"postgres"`
 }
 
 type App struct {
@@ -31,6 +33,22 @@ type Logger struct {
 	MaxBackups int    `mapstructure:"max_backups"`
 	MaxAge     int    `mapstructure:"max_age"`
 	Compress   bool   `mapstructure:"compress"`
+}
+
+type Postgres struct {
+	// Connection settings
+	Host     string `mapstructure:"host" env:"POSTGRES_HOST"`
+	Port     int    `mapstructure:"port" env:"POSTGRES_PORT"`
+	User     string `mapstructure:"user" env:"POSTGRES_USER"`
+	Password string `mapstructure:"password" env:"POSTGRES_PASSWORD"`
+	Name     string `mapstructure:"name" env:"POSTGRES_DB"`
+	SSLMode  string `mapstructure:"ssl_mode" env:"POSTGRES_SSLMODE"`
+
+	// Pool settings
+	MaxOpenConns    int           `mapstructure:"max_open_conns" env:"POSTGRES_MAX_OPEN_CONNS"`
+	MaxIdleConns    int           `mapstructure:"max_idle_conns" env:"POSTGRES_MAX_IDLE_CONNS"`
+	ConnMaxLifetime time.Duration `mapstructure:"conn_max_lifetime" env:"POSTGRES_CONN_MAX_LIFETIME"`
+	ConnMaxIdleTime time.Duration `mapstructure:"conn_max_idle_time" env:"POSTGRES_CONN_MAX_IDLE_TIME"`
 }
 
 func LoadConfig() (*Config, error) {

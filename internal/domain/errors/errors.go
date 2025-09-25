@@ -13,6 +13,7 @@ var (
 
 	// Profile errors
 	ErrProfileNotFound      = errors.New("profile not found")
+	ErrProfileIsExist       = errors.New("profile with this user_id already exists")
 	ErrBioTooLong           = errors.New("bio is too long")
 	ErrInappropriateContent = errors.New("content contains inappropriate words")
 	ErrInvalidAvatarURL     = errors.New("invalid avatar URL")
