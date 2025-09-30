@@ -78,16 +78,16 @@ func (u *BotUseCaseImpl) ProcessUpdate(
 	u.logger.Info("Received message", "chat_id", chatID, "text", text)
 
 	command, _ := u.extractCommand(text)
+	fmt.Println("Extracted command:", command)
 
 	var err error = nil
-	// var response *types.SendMessageResponse
 
 	switch command {
-	case "home_ip":
+	case "/home_ip":
 		_, err = u.HandleHomeIPCommand(ctx, chatID)
-	case "start":
+	case "/start":
 		_, err = u.HandleStartCommand(ctx, chatID)
-	case "help":
+	case "/help":
 		_, err = u.HandleHelpCommand(ctx, chatID)
 	default:
 		if command != "" {
