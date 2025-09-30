@@ -1,12 +1,12 @@
 package initialize
 
 import (
-	"go-telegram-bot/internal/application/service"
 	"go-telegram-bot/internal/domain/repository"
 	domainService "go-telegram-bot/internal/domain/service"
 	"go-telegram-bot/internal/infrastructure/config"
 	"go-telegram-bot/internal/infrastructure/factory"
 	"go-telegram-bot/internal/presentation"
+	"go-telegram-bot/internal/presentation/service"
 
 	"gorm.io/gorm"
 )
@@ -17,24 +17,25 @@ type Container struct {
 	DB     *gorm.DB
 
 	// Services
-	IpService   domainService.IPService
+	IPService   domainService.IPService
 	TelegramBot domainService.TelegramBotService
-
-	// Factories
-	ApplicationFactory  *factory.ApplicationServiceFactory
-	PresentationFactory *factory.PresentationFactory
-
-	// Application Services
-	BotApplicationService *service.BotApplicationService
-
-	// Presentation Layer
-	TelegramHandler *presentation.TelegramHandler
+	BotUseCase  domainService.BotUseCase
 
 	// Repositories
 	UserRepo        repository.UserRepository
 	UserProfileRepo repository.UserProfileRepository
 	ChatRepo        repository.ChatRepository
 	MessageRepo     repository.MessageRepository
+
+	// Factories
+	ApplicationFactory  *factory.ApplicationServiceFactory
+	PresentationFactory *factory.PresentationFactory
+
+	// Application Services
+
+	// Presentation Layer
+	TelegramHandler       *presentation.TelegramHandler
+	BotApplicationService *service.BotApplicationService
 }
 
 func NewContainer() (*Container, error) {
@@ -50,8 +51,14 @@ func NewContainer() (*Container, error) {
 		return nil, err
 	}
 
+	// init database connection
+	container.initDatabase()
+
+	// init repositories
+	container.InitRepositories()
+
 	// init services
-	container.InitService()
+	container.InitServices()
 
 	// init factories
 	container.InitFactories()
@@ -61,12 +68,6 @@ func NewContainer() (*Container, error) {
 
 	// init presentation layer
 	container.InitPresentationLayer()
-
-	// init database connection
-	container.initDatabase()
-
-	// init repositories
-	container.InitRepositories()
 
 	return container, nil
 }

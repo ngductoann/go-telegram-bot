@@ -1,7 +1,6 @@
 package config
 
 import (
-	"errors"
 	"fmt"
 	"os"
 	"time"
@@ -16,14 +15,14 @@ const (
 )
 
 type Config struct {
-	App      App      `mapstructure:"app"`
-	Logger   Logger   `mapstructure:"logger"`
-	Postgres Postgres `mapstructure:"postgres"`
+	App      App          `mapstructure:"app"`
+	Logger   Logger       `mapstructure:"logger"`
+	Postgres Postgres     `mapstructure:"postgres"`
+	Client   ClientConfig `mapstructure:"client"`
 }
 
 type App struct {
-	TelegramBotToken string `mapstructure:"telegram_bot_token" env:"TELEGRAM_BOT_TOKEN"`
-	Environment      string `mapstructure:"environment" env:"ENVIRONMENT"`
+	Environment string `mapstructure:"environment" env:"ENVIRONMENT"`
 }
 
 type Logger struct {
@@ -51,26 +50,45 @@ type Postgres struct {
 	ConnMaxIdleTime time.Duration `mapstructure:"conn_max_idle_time" env:"POSTGRES_CONN_MAX_IDLE_TIME"`
 }
 
+// ClientConfig holds configuration for the EnhancedTelegramBotService client
+type ClientConfig struct {
+	Token          string        `json:"token" env:"TELEGRAM_BOT_TOKEN"`
+	BaseURL        string        `json:"base_url,omitempty" env:"TELEGRAM_API_BASE_URL"`
+	Timeout        time.Duration `json:"timeout" env:"TELEGRAM_API_TIMEOUT"`
+	MaxRetries     int           `json:"max_retries" env:"TELEGRAM_API_MAX_RETRIES"`
+	RetryDelay     time.Duration `json:"retry_delay" env:"TELEGRAM_API_RETRY_DELAY"`
+	RateLimitDelay time.Duration `json:"rate_limit_delay" env:"TELEGRAM_API_RATE_LIMIT_DELAY"`
+	EnableMetrics  bool          `json:"enable_metrics" env:"TELEGRAM_API_ENABLE_METRICS"`
+	EnableLogging  bool          `json:"enable_logging" env:"TELEGRAM_API_ENABLE_LOGGING"`
+	UserAgent      string        `json:"user_agent,omitempty" env:"TELEGRAM_API_USER_AGENT"`
+}
+
+func getFileConfig(env string) string {
+	switch env {
+	case "production":
+		return "config_prod"
+	case "development":
+		return "config_dev"
+	case "testing":
+		return "config_testing"
+	default:
+		return "config"
+	}
+}
+
+// LoadConfig loads the configuration from file and environment variables
 func LoadConfig() (*Config, error) {
 	_ = godotenv.Load() // Load .env file if exists, ignore error if not found
 	env := os.Getenv("ENVIRONMENT")
-	var configName string
-	switch env {
-	case "production":
-		configName = "config_prod"
-	case "development":
-		configName = "config_dev"
-	case "testing":
-		configName = "config_testing"
-	default:
-		configName = "config"
-	}
 
 	// Create a new Viper instance
 	v := viper.New()
-	v.SetConfigName(configName)
+	v.SetConfigName(getFileConfig(env))
 	v.SetConfigType(ConfigType)
 	v.AddConfigPath(ConfigPath)
+
+	// Enable automatic environment variable lookup
+	v.AutomaticEnv()
 	bindEnvironmentVariables(v)
 
 	if err := v.ReadInConfig(); err != nil {
@@ -82,9 +100,12 @@ func LoadConfig() (*Config, error) {
 		return nil, fmt.Errorf("error unmarshaling config: %w", err)
 	}
 
-	if err := validateConfig(config); err != nil {
-		return nil, err
-	}
+	config.Client.BaseURL = config.Client.BaseURL + config.Client.Token
+
+	// Print the loaded configuration
+	fmt.Println("=== Loaded Configuration ===")
+	fmt.Printf("%+v\n", config)
+	fmt.Println("============================")
 
 	return config, nil
 }
@@ -92,14 +113,41 @@ func LoadConfig() (*Config, error) {
 // bindEnvironmentVariables binds specific environment variables to configuration keys
 func bindEnvironmentVariables(v *viper.Viper) {
 	// Bind app environment variables to config keys
-	v.BindEnv("app.telegram_bot_token", "TELEGRAM_BOT_TOKEN")
 	v.BindEnv("app.environment", "ENVIRONMENT")
+
+	// Database configuration
+	v.BindEnv("postgres.host", "POSTGRES_HOST")
+	v.BindEnv("postgres.port", "POSTGRES_PORT")
+	v.BindEnv("postgres.user", "POSTGRES_USER")
+	v.BindEnv("postgres.password", "POSTGRES_PASSWORD")
+	v.BindEnv("postgres.name", "POSTGRES_NAME")
+	v.BindEnv("postgres.ssl_mode", "POSTGRES_SSL_MODE")
+	v.BindEnv("postgres.max_open_conns", "POSTGRES_MAX_OPEN_CONNS")
+	v.BindEnv("postgres.max_idle_conns", "POSTGRES_MAX_IDLE_CONNS")
+	v.BindEnv("postgres.conn_max_lifetime", "POSTGRES_CONN_MAX_LIFETIME")
+	v.BindEnv("postgres.conn_max_idle_time", "POSTGRES_CONN_MAX_IDLE_TIME")
+
+	// Client configuration
+	v.BindEnv("client.token", "TELEGRAM_BOT_TOKEN")
+	v.BindEnv("client.base_url", "TELEGRAM_API_BASE_URL")
+	v.BindEnv("client.timeout", "TELEGRAM_API_TIMEOUT")
+	v.BindEnv("client.max_retries", "TELEGRAM_API_MAX_RETRIES")
+	v.BindEnv("client.retry_delay", "TELEGRAM_API_RETRY_DELAY")
+	v.BindEnv("client.rate_limit_delay", "TELEGRAM_API_RATE_LIMIT_DELAY")
+	v.BindEnv("client.enable_metrics", "TELEGRAM_API_ENABLE_METRICS")
+	v.BindEnv("client.enable_logging", "TELEGRAM_API_ENABLE_LOGGING")
+	v.BindEnv("client.user_agent", "TELEGRAM_API_USER_AGENT")
 }
 
-// validateConfig checks for required configuration values
-func validateConfig(config *Config) error {
-	if config.App.Environment == "production" && config.App.TelegramBotToken == "" {
-		return errors.New("TELEGRAM_BOT_TOKEN must be set in production environment")
-	}
-	return nil
+// GetDatabaseURL constructs the database connection URL from the configuration.
+func (c *Config) GetDatabaseURL() string {
+	return fmt.Sprintf(
+		"host=%s port=%d user=%s password=%s dbname=%s sslmode=%s",
+		c.Postgres.Host,
+		c.Postgres.Port,
+		c.Postgres.User,
+		c.Postgres.Password,
+		c.Postgres.Name,
+		c.Postgres.SSLMode,
+	)
 }

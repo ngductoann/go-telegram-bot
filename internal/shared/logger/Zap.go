@@ -110,37 +110,37 @@ func getEncoderLogger() zapcore.Encoder {
 	return zapcore.NewConsoleEncoder(encoderConfig)
 }
 
-func (z *ZapLogger) Debug(msg string, fields ...interface{}) {
+func (z *ZapLogger) Debug(msg string, fields ...any) {
 	zapFields := z.convertFields(fields...)
 	z.logger.Debug(msg, zapFields...)
 }
 
-func (z *ZapLogger) Info(msg string, fields ...interface{}) {
+func (z *ZapLogger) Info(msg string, fields ...any) {
 	zapFields := z.convertFields(fields...)
 	z.logger.Info(msg, zapFields...)
 }
 
-func (z *ZapLogger) Warn(msg string, fields ...interface{}) {
+func (z *ZapLogger) Warn(msg string, fields ...any) {
 	zapFields := z.convertFields(fields...)
 	z.logger.Warn(msg, zapFields...)
 }
 
-func (z *ZapLogger) Error(msg string, fields ...interface{}) {
+func (z *ZapLogger) Error(msg string, fields ...any) {
 	zapFields := z.convertFields(fields...)
 	z.logger.Error(msg, zapFields...)
 }
 
-func (z *ZapLogger) Fatal(msg string, fields ...interface{}) {
+func (z *ZapLogger) Fatal(msg string, fields ...any) {
 	zapFields := z.convertFields(fields...)
 	z.logger.Fatal(msg, zapFields...)
 }
 
-func (z *ZapLogger) Panic(msg string, fields ...interface{}) {
+func (z *ZapLogger) Panic(msg string, fields ...any) {
 	zapFields := z.convertFields(fields...)
 	z.logger.Panic(msg, zapFields...)
 }
 
-func (z *ZapLogger) convertFields(fields ...interface{}) []zap.Field {
+func (z *ZapLogger) convertFields(fields ...any) []zap.Field {
 	if len(fields)%2 != 0 {
 		// if odd number of fields, add the last one as a generic field
 		fields = append(fields, "unknown")
@@ -168,13 +168,13 @@ func (z *ZapLogger) WithContext(ctx context.Context) domainService.Logger {
 }
 
 // WithField returns a logger with a single field
-func (z *ZapLogger) WithField(key string, value interface{}) domainService.Logger {
+func (z *ZapLogger) WithField(key string, value any) domainService.Logger {
 	newLogger := z.logger.With(zap.Any(key, value))
 	return &ZapLogger{logger: newLogger}
 }
 
 // WithFields returns a logger with multiple fields
-func (z *ZapLogger) WithFields(fields map[string]interface{}) domainService.Logger {
+func (z *ZapLogger) WithFields(fields map[string]any) domainService.Logger {
 	zapFields := make([]zap.Field, 0, len(fields))
 	for key, value := range fields {
 		zapFields = append(zapFields, zap.Any(key, value))

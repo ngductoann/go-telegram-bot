@@ -70,7 +70,7 @@ func (m *Message) NewMarkdownMessage(
 	}
 }
 
-// IsValid marks the message as edited
+// Edited marks the message as edited
 func (m *Message) Edited() {
 	m.IsEdited = true
 }

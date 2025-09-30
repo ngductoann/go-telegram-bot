@@ -118,10 +118,7 @@ func (s *ipService) GetIPInfo(ctx context.Context) (*entity.IPInfo, error) {
 		return nil, fmt.Errorf("failed to get public IP: %w", err)
 	}
 
-	return &entity.IPInfo{
-		LocalIP:  localIP,
-		PublicIP: publicIP,
-	}, nil
+	return entity.NewIPInfo(localIP, publicIP), nil
 }
 
 // ValidateIP validates if the provided string is a valid IP address

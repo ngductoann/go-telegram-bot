@@ -21,32 +21,14 @@ func NewChatRepository(db *gorm.DB) repository.ChatRepository {
 	return &chatRepository{db: db}
 }
 
-// FindByUUID retrieves a chat by its UUID.
-func (r *chatRepository) FindByUUID(ctx context.Context, id uuid.UUID) (*entity.Chat, error) {
-	var chat entity.Chat
-	err := r.db.WithContext(ctx).
-		Where("id = ?", id).
-		First(&chat).Error
-	if err != nil {
-		if err == gorm.ErrRecordNotFound {
-			return nil, errors.ErrChatNotFound
-		}
-		return nil, err
-	}
-
-	return &chat, err
-}
-
-// FindByTelegramChatID retrieves a chat by its TelegramChatID.
-func (r *chatRepository) FindByTelegramChatID(
-	ctx context.Context,
-	telegramChatID types.TelegramChatID,
+// GetByUUID retrieves a chat by its UUID.
+func (r *chatRepository) GetByUUID(
+	ctx context.Context, id uuid.UUID,
 ) (*entity.Chat, error) {
 	var chat entity.Chat
-	err := r.db.WithContext(ctx).
-		Where("telegram_chat_id = ?", telegramChatID).
-		First(&chat).Error
-	if err != nil {
+	if err := r.db.WithContext(ctx).
+		Where("id = ?", id).
+		First(&chat).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, errors.ErrChatNotFound
 		}
@@ -56,12 +38,30 @@ func (r *chatRepository) FindByTelegramChatID(
 	return &chat, nil
 }
 
-// FindAll retrieves all chats from the database.
-func (r *chatRepository) FindAll(ctx context.Context) ([]*entity.Chat, error) {
+// GetByTelegramChatID retrieves a chat by its TelegramChatID.
+func (r *chatRepository) GetByTelegramChatID(
+	ctx context.Context, telegramChatID types.TelegramChatID,
+) (*entity.Chat, error) {
+	var chat entity.Chat
+	if err := r.db.WithContext(ctx).
+		Where("telegram_chat_id = ?", telegramChatID).
+		First(&chat).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, errors.ErrChatNotFound
+		}
+		return nil, err
+	}
+
+	return &chat, nil
+}
+
+// GetAll retrieves all chats from the database.
+func (r *chatRepository) GetAll(
+	ctx context.Context,
+) ([]*entity.Chat, error) {
 	var chats []*entity.Chat
 
-	err := r.db.WithContext(ctx).Find(&chats).Error
-	if err != nil {
+	if err := r.db.WithContext(ctx).Find(&chats).Error; err != nil {
 		return nil, err
 	}
 
@@ -69,59 +69,37 @@ func (r *chatRepository) FindAll(ctx context.Context) ([]*entity.Chat, error) {
 }
 
 // Create inserts a new chat into the database.
-func (r *chatRepository) Create(ctx context.Context, chat *entity.Chat) error {
-	existsChat, err := r.FindByTelegramChatID(ctx, chat.TelegramChatID)
-	if existsChat != nil || err == nil {
-		return errors.ErrChatAlreadyExists
-	}
+func (r *chatRepository) Create(
+	ctx context.Context, chat *entity.Chat,
+) error {
 	return r.db.WithContext(ctx).Create(chat).Error
 }
 
 // Update modifies an existing chat in the database.
-func (r *chatRepository) Update(ctx context.Context, chat *entity.Chat) error {
-	_, err := r.FindByTelegramChatID(ctx, chat.TelegramChatID)
-	if err != nil {
-		return err
-	}
+func (r *chatRepository) Update(
+	ctx context.Context, chat *entity.Chat,
+) error {
 	return r.db.WithContext(ctx).Save(chat).Error
 }
 
 // Update modifies an existing chat in the database.
-func (r *chatRepository) Delete(ctx context.Context, chat *entity.Chat) error {
-	_, err := r.FindByTelegramChatID(ctx, chat.TelegramChatID)
-	if err != nil {
-		return nil
-	}
-	return r.db.WithContext(ctx).Delete(chat).Error
-}
-
-// GetOrCreate retrieves a chat by its TelegramChatID or creates it if it doesn't exist.
-func (r *chatRepository) GetOrCreate(
-	ctx context.Context,
-	chatID types.TelegramChatID,
-	chatType types.ChatType,
-) (*entity.Chat, error) {
-	chat, err := r.FindByTelegramChatID(ctx, chatID)
-	if err != nil {
-		chat = entity.NewChat(chatID, chatType)
-		err := r.Create(ctx, chat)
-		if err != nil {
-			return nil, err
-		}
-		return r.FindByTelegramChatID(ctx, chatID)
-	}
-
-	return chat, nil
+func (r *chatRepository) Delete(
+	ctx context.Context, telegramChatID types.TelegramChatID,
+) error {
+	return r.db.WithContext(ctx).
+		Where("telegram_chat_id = ?", telegramChatID).
+		Delete(&entity.Chat{}).Error
 }
 
 // GetActiveChats retrieves a list of active chats up to the specified limit.
-func (r *chatRepository) GetActiveChats(ctx context.Context, limit int) ([]*entity.Chat, error) {
+func (r *chatRepository) GetActiveChats(
+	ctx context.Context, limit int,
+) ([]*entity.Chat, error) {
 	var chats []*entity.Chat
-	err := r.db.WithContext(ctx).
+	if err := r.db.WithContext(ctx).
 		Where("is_active = ?", true).
 		Limit(limit).
-		Find(&chats).Error
-	if err != nil {
+		Find(&chats).Error; err != nil {
 		return nil, err
 	}
 

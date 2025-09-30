@@ -20,7 +20,7 @@ func (tuid TelegramUserID) Value() (driver.Value, error) {
 }
 
 // Scan implements the sql.Scanner interface for TelegramUserID
-func (tuid *TelegramUserID) Scan(value interface{}) error {
+func (tuid *TelegramUserID) Scan(value any) error {
 	if value == nil {
 		*tuid = 0
 		return nil
@@ -48,7 +48,7 @@ func (tcid *TelegramChatID) Value() (driver.Value, error) {
 }
 
 // Scan implements the sql.Scanner interface for TelegramChatID
-func (tcid *TelegramChatID) Scan(value interface{}) error {
+func (tcid *TelegramChatID) Scan(value any) error {
 	if value == nil {
 		*tcid = 0
 		return nil

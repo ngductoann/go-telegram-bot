@@ -1,9 +1,9 @@
 package factory
 
 import (
-	"go-telegram-bot/internal/application/service"
 	domainService "go-telegram-bot/internal/domain/service"
 	"go-telegram-bot/internal/presentation"
+	"go-telegram-bot/internal/presentation/service"
 )
 
 // PresentationFactory creates presentation layer components
@@ -21,4 +21,12 @@ func (f *PresentationFactory) CreateTelegramHandler(
 	logger domainService.Logger,
 ) *presentation.TelegramHandler {
 	return presentation.NewTelegramHandler(botAppService, telegramBot, logger)
+}
+
+// CreatePresentationService creates a BotApplicationService
+func (f *PresentationFactory) CreatePresentationService(
+	botUseCase domainService.BotUseCase,
+	logger domainService.Logger,
+) *service.BotApplicationService {
+	return service.NewBotApplicationService(botUseCase, logger)
 }

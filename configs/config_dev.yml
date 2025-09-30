@@ -23,3 +23,13 @@ postgres:
   max_open_conns: 100
   conn_max_lifetime: 1h
   conn_max_idle_time: 10m
+
+client:
+  BaseURL: "https://api.telegram.org/bot"
+  Timeout: 30s
+  MaxRetries: 3
+  RetryDelay: 1s
+  RateLimitDelay: 1s
+  EnableMetrics: true
+  EnableLogging: true
+  UserAgent: "Go-Telegram-Bot/1.0"

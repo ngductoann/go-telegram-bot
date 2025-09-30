@@ -10,8 +10,8 @@ import (
 
 type UserProfileRepository interface {
 	// Define methods for user profile repository
-	FindByUserID(ctx context.Context, userID uuid.UUID) (*entity.UserProfile, error)
-	FindByID(ctx context.Context, id uuid.UUID) (*entity.UserProfile, error)
+	GetByUserID(ctx context.Context, userID uuid.UUID) (*entity.UserProfile, error)
+	GetByID(ctx context.Context, id uuid.UUID) (*entity.UserProfile, error)
 	Create(ctx context.Context, profile *entity.UserProfile) error
 	Update(ctx context.Context, profile *entity.UserProfile) error
 	Delete(ctx context.Context, profile *entity.UserProfile) error

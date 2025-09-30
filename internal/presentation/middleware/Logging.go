@@ -2,9 +2,10 @@ package middleware
 
 import (
 	"context"
-	"go-telegram-bot/internal/domain/entity"
-	"go-telegram-bot/internal/domain/service"
 	"time"
+
+	"go-telegram-bot/internal/domain/service"
+	"go-telegram-bot/internal/domain/types"
 )
 
 type LoggingMiddleware struct {
@@ -19,8 +20,8 @@ func NewLoggingMiddleware(logger service.Logger) *LoggingMiddleware {
 
 func (m *LoggingMiddleware) Process(
 	ctx context.Context,
-	update entity.TelegramUpdate,
-	next func(ctx context.Context, update entity.TelegramUpdate) error,
+	update types.TelegramUpdate,
+	next func(ctx context.Context, update types.TelegramUpdate) error,
 ) error {
 	start := time.Now()
 

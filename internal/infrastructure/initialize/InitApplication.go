@@ -1,5 +1,12 @@
 package initialize
 
+import "go-telegram-bot/internal/application/service"
+
 func (c *Container) InitApplicationServices() {
-	c.BotApplicationService = c.ApplicationFactory.CreateBotApplicationService(c.IpService, c.TelegramBot, c.Logger)
+	// Create BotUseCase implementation
+	c.BotUseCase = service.NewBotUseCaseImpl(
+		c.IPService,
+		c.TelegramBot,
+		c.Logger,
+	)
 }

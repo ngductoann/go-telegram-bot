@@ -23,12 +23,11 @@ func NewPostgresConnection(databaseURL string) (*gorm.DB, error) {
 
 // SetPool configures the connection pool settings for the given GORM DB instance.
 func SetPool(cfg *config.Config, db *gorm.DB, logger service.Logger) {
-	logger.Info(
-		"Setting up Postgres connection pool: max_open_conns=%d, max_idle_conns=%d, conn_max_lifetime=%s, conn_max_idle_time=%s",
-		cfg.Postgres.MaxOpenConns,
-		cfg.Postgres.MaxIdleConns,
-		cfg.Postgres.ConnMaxLifetime,
-		cfg.Postgres.ConnMaxIdleTime,
+	logger.Info("Setting up PostgreSQL connection pool",
+		"max_open_conns", cfg.Postgres.MaxOpenConns,
+		"max_idle_conns", cfg.Postgres.MaxIdleConns,
+		"conn_max_lifetime", cfg.Postgres.ConnMaxLifetime,
+		"conn_max_idle_time", cfg.Postgres.ConnMaxIdleTime,
 	)
 	sqlDB, err := db.DB()
 	if err != nil {
